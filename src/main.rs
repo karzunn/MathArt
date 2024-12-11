@@ -6,11 +6,11 @@ use rayon::prelude::*;
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
-const MAP_RESOLUTION: f64 = 720.0;
+const MAP_RESOLUTION: f64 = 1000.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 1000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.01;
+const STEP: f64 = 0.005;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -44,6 +44,7 @@ fn populate_frequency_map(
 ) -> HashMap<(u16, u16), u64> {
     let mut z = Complex64::new(0.0, 0.0);
     let mut visited_values = HashSet::new();
+    let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
 
     for _ in 0..MAX_ITERATIONS {
 
@@ -51,7 +52,7 @@ fn populate_frequency_map(
             translate_range(z.re),
             translate_range(z.im)
         );
-        let entry = frequency_map.entry(location).or_insert(0);
+        let entry = local_map.entry(location).or_insert(0);
         *entry += 1;
 
         if !visited_values.insert((
@@ -62,6 +63,9 @@ fn populate_frequency_map(
         }
 
         if z.norm_sqr() > 4.0 {
+            for (key, value) in local_map {
+                *frequency_map.entry(key).or_insert(0) += value;
+            }
             break
         }
 
