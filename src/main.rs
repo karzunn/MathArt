@@ -41,10 +41,11 @@ fn translate_range(input: f64) -> u16 {
 fn populate_frequency_map(
     imaginary_input: Complex64,
     mut frequency_map: HashMap<(u16, u16), u64>
-) -> HashMap<(u16, u16), u64> {
+) -> (HashMap<(u16, u16), u64>, bool) {
     let mut z = Complex64::new(0.0, 0.0);
     let mut visited_values = HashSet::new();
     let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
+    let mut escaped: bool = false;
 
     for _ in 0..MAX_ITERATIONS {
 
@@ -66,6 +67,7 @@ fn populate_frequency_map(
             for (key, value) in local_map {
                 *frequency_map.entry(key).or_insert(0) += value;
             }
+            escaped = true;
             break
         }
 
@@ -73,7 +75,7 @@ fn populate_frequency_map(
 
     }
 
-    frequency_map
+    (frequency_map, escaped)
 }
 
 fn main() {
@@ -85,11 +87,24 @@ fn main() {
     let partial_maps: Vec<HashMap<(u16, u16), u64>> = (0..=DENSITY)
         .into_par_iter()
         .map(|i| {
+            let mut skipping: bool = false;
+            let mut escaped: bool;
             let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
+            let mut local_step = STEP;
             let real = (i as f64 / DENSITY as f64) * (MAP_MAX - MAP_MIN) + MAP_MIN;
-            for j in 0..=DENSITY {
-                let imag = (j as f64 / DENSITY as f64) * (MAP_MAX - MAP_MIN) + MAP_MIN;
-                local_map = populate_frequency_map(Complex64::new(real, imag), local_map);
+            let mut imag = MAP_MIN;
+            while imag <= MAP_MAX {
+                (local_map, escaped) = populate_frequency_map(Complex64::new(real, imag), local_map);
+                if !skipping && !escaped {
+                    skipping = true;
+                    local_step = STEP * 2.0;
+                }
+                else if skipping && escaped {
+                    skipping = false;
+                    imag -= local_step;
+                    local_step = STEP;
+                }
+                imag += local_step;
             }
             local_map
         })
