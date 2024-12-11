@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 num-complex = "0.4"
 image = "0.24.6"
+rayon = "1.7"
