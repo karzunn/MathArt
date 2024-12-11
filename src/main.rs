@@ -1,5 +1,5 @@
 use num_complex::Complex64;
-use std::collections::{HashSet, HashMap};
+use std::{collections::{HashMap, HashSet}, time::{SystemTime, UNIX_EPOCH}};
 use image::{GrayImage, Luma};
 use rayon::prelude::*;
 
@@ -10,7 +10,7 @@ const MAP_RESOLUTION: f64 = 720.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 1000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.003;
+const STEP: f64 = 0.01;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -73,6 +73,8 @@ fn populate_frequency_map(
 }
 
 fn main() {
+    let start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+
     let mut frequency_map: HashMap<(u16, u16), u64> = HashMap::new();
     const DENSITY: u64 = ((MAP_MAX-MAP_MIN)/(STEP as f64)) as u64;
 
@@ -94,6 +96,10 @@ fn main() {
             *frequency_map.entry(key).or_insert(0) += value;
         }
     }
+
+    let end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+
+    println!("Execution time: {:?}", end-start);
 
     create_grayscale_image(frequency_map);
 }
