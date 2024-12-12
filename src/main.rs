@@ -1,6 +1,6 @@
 use num_complex::Complex64;
 use std::{collections::{HashMap, HashSet}, time::{SystemTime, UNIX_EPOCH}};
-use image::{GrayImage, Luma};
+use image::{ImageBuffer, Luma};
 use rayon::prelude::*;
 
 
@@ -8,22 +8,38 @@ const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
 const MAP_RESOLUTION: f64 = 1000.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 1000;
+const MAX_ITERATIONS: u32 = 10000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
 const STEP: f64 = 0.005;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
-    let max_value = pixels.values().cloned().max().unwrap_or(1);
 
-    let mut img = GrayImage::new(PIXELS,PIXELS);
+    let mut unique_values: Vec<u64> = pixels.values().cloned().collect();
+    unique_values.sort_unstable();
+    unique_values.dedup();
+
+    let max_value = *unique_values.last().unwrap_or(&1);
+    let new_max = if unique_values.len() > 1 {
+        unique_values[unique_values.len() - 3]
+    } else {
+        max_value
+    };
+
+    let mut img: ImageBuffer<Luma<u16>, Vec<u16>> = ImageBuffer::new(PIXELS, PIXELS);
 
     for ((x, y), value) in pixels {
         if x as u32 >= PIXELS || y as u32 >= PIXELS {
             continue;
         }
 
-        let normalized_value = ((value as f64 / max_value as f64).sqrt().sqrt() * 255.0).round() as u8;
+        let value = if value >= new_max {
+            new_max
+        } else {
+            value
+        };
+
+        let normalized_value = ((value as f64 / new_max as f64).sqrt().sqrt() * 65535.0).round() as u16;
 
         img.put_pixel(x as u32, y as u32, Luma([normalized_value]));
     }
