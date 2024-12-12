@@ -6,7 +6,7 @@ use rayon::prelude::*;
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
-const MAP_RESOLUTION: f64 = 1000.0;
+const MAP_RESOLUTION: f64 = 5000.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 10000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
@@ -99,37 +99,43 @@ fn main() {
 
     let mut frequency_map: HashMap<(u16, u16), u64> = HashMap::new();
     const DENSITY: u64 = ((MAP_MAX-MAP_MIN)/(STEP as f64)) as u64;
+    const SEGMENTS: u64 = 100;
+    const SEGMENT_LENGTH: u64 = DENSITY/SEGMENTS;
 
-    let partial_maps: Vec<HashMap<(u16, u16), u64>> = (0..=DENSITY)
-        .into_par_iter()
-        .map(|i| {
-            let mut skipping: bool = false;
-            let mut escaped: bool;
-            let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
-            let mut local_step = STEP;
-            let real = (i as f64 / DENSITY as f64) * (MAP_MAX - MAP_MIN) + MAP_MIN;
-            let mut imag = MAP_MIN;
-            while imag <= MAP_MAX {
-                (local_map, escaped) = populate_frequency_map(Complex64::new(real, imag), local_map);
-                if !skipping && !escaped {
-                    skipping = true;
-                    local_step = STEP * 2.0;
+    for segment in 0..=SEGMENTS {
+
+        let partial_maps: Vec<HashMap<(u16, u16), u64>> = ((segment*SEGMENT_LENGTH)..=((segment+1)*SEGMENT_LENGTH))
+            .into_par_iter()
+            .map(|i| {
+                let mut skipping: bool = false;
+                let mut escaped: bool;
+                let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
+                let mut local_step = STEP;
+                let real = (i as f64 / DENSITY as f64) * (MAP_MAX - MAP_MIN) + MAP_MIN;
+                let mut imag = MAP_MIN;
+                while imag <= MAP_MAX {
+                    (local_map, escaped) = populate_frequency_map(Complex64::new(real, imag), local_map);
+                    if !skipping && !escaped {
+                        skipping = true;
+                        local_step = STEP * 2.0;
+                    }
+                    else if skipping && escaped {
+                        skipping = false;
+                        imag -= local_step;
+                        local_step = STEP;
+                    }
+                    imag += local_step;
                 }
-                else if skipping && escaped {
-                    skipping = false;
-                    imag -= local_step;
-                    local_step = STEP;
-                }
-                imag += local_step;
+                local_map
+            })
+            .collect();
+
+        for map in partial_maps {
+            for (key, value) in map {
+                *frequency_map.entry(key).or_insert(0) += value;
             }
-            local_map
-        })
-        .collect();
-
-    for map in partial_maps {
-        for (key, value) in map {
-            *frequency_map.entry(key).or_insert(0) += value;
         }
+    
     }
 
     let end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
