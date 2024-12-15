@@ -6,12 +6,11 @@ use rayon::prelude::*;
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
-const MAP_RESOLUTION: f64 = 5000.0;
-const ITERATE_BOUNDARY: (f64, f64, f64, f64) = (-2.0,0.0,2.0,0.0); //left, right, top, bottom
+const MAP_RESOLUTION: f64 = 2500.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 10000;
+const MAX_ITERATIONS: u32 = 100000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.0025;
+const STEP: f64 = 0.0005;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -100,7 +99,7 @@ fn main() {
 
     let mut frequency_map: HashMap<(u16, u16), u64> = HashMap::new();
     const DENSITY: u64 = ((MAP_MAX-MAP_MIN)/(STEP as f64)) as u64;
-    const SEGMENTS: u64 = 100;
+    const SEGMENTS: u64 = 10;
     const SEGMENT_LENGTH: u64 = DENSITY/SEGMENTS;
 
     for segment in 0..=SEGMENTS {

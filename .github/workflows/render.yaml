@@ -1,0 +1,40 @@
+name: Generate Rendering
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build and run Rust program
+        run: |
+          cargo build --release
+          cargo run
+
+      - name: Check if output file exists
+        run: |
+          if [ ! -f output.png ]; then
+            echo "Error: output.png not found!"
+            exit 1
+          fi
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::679274284562:role/UploadMathArtRendering 
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp output.png s3://math-art-renderings/output.png
