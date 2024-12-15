@@ -2,15 +2,17 @@ use num_complex::Complex64;
 use std::{collections::{HashMap, HashSet}, time::{SystemTime, UNIX_EPOCH}};
 use image::{ImageBuffer, Luma};
 use rayon::prelude::*;
+use indicatif::{ProgressBar, ProgressStyle};
 
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
 const MAP_RESOLUTION: f64 = 2500.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 100000;
+const MAX_ITERATIONS: u32 = 1000000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
 const STEP: f64 = 0.0005;
+const SEGMENTS: u64 = 10;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -28,6 +30,12 @@ fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
 
     let mut img: ImageBuffer<Luma<u16>, Vec<u16>> = ImageBuffer::new(PIXELS, PIXELS);
 
+    let pb = ProgressBar::new(pixels.values().len() as u64);
+    let style = ProgressStyle::default_bar()
+        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({percent}%)")
+        .unwrap_or_else(|_| ProgressStyle::default_bar());
+    pb.set_style(style);
+
     for ((x, y), value) in pixels {
         if x as u32 >= PIXELS || y as u32 >= PIXELS {
             continue;
@@ -42,9 +50,12 @@ fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
         let normalized_value = ((value as f64 / new_max as f64).sqrt().sqrt() * 65535.0).round() as u16;
 
         img.put_pixel(x as u32, y as u32, Luma([normalized_value]));
+        pb.inc(1);
     }
 
     img.save("output.png").expect("Failed to save image");
+
+    pb.finish_with_message("Image Saved!");
 }
 
 
@@ -99,8 +110,13 @@ fn main() {
 
     let mut frequency_map: HashMap<(u16, u16), u64> = HashMap::new();
     const DENSITY: u64 = ((MAP_MAX-MAP_MIN)/(STEP as f64)) as u64;
-    const SEGMENTS: u64 = 10;
     const SEGMENT_LENGTH: u64 = DENSITY/SEGMENTS;
+
+    let pb = ProgressBar::new(SEGMENTS);
+    let style = ProgressStyle::default_bar()
+        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({percent}%)")
+        .unwrap_or_else(|_| ProgressStyle::default_bar());
+    pb.set_style(style);
 
     for segment in 0..=SEGMENTS {
 
@@ -135,8 +151,12 @@ fn main() {
                 *frequency_map.entry(key).or_insert(0) += value;
             }
         }
+
+        pb.inc(1);
     
     }
+
+    pb.finish_with_message("Processing complete.");
 
     let end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
 

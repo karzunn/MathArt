@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up Rust
@@ -18,12 +18,12 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Build and run Rust program
+      - name: Build and Run
         run: |
           cargo build --release
           cargo run
 
-      - name: Check if output file exists
+      - name: Check For Output
         run: |
           if [ ! -f output.png ]; then
             echo "Error: output.png not found!"
@@ -35,6 +35,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::679274284562:role/UploadMathArtRendering 
 
-      - name: Upload to S3
+      - name: Upload To S3
         run: |
-          aws s3 cp output.png s3://math-art-renderings/output.png
+          aws s3 cp output.png s3://math-art-renderings/output_2.png
