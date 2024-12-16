@@ -47,4 +47,4 @@ jobs:
           BUCKET_NAME="math-art-renderings"
           S3_PATH="s3://$BUCKET_NAME/$UUID.png"
           aws s3 cp output.png $S3_PATH
-          echo "Rendering available here: https://$BUCKET_NAME.s3.us-east-1.amazonaws.com/$UUID.png" >> $GITHUB_STEP_SUMMARY
+          echo "Rendering [available here.](https://$BUCKET_NAME.s3.us-east-1.amazonaws.com/$UUID.png)" >> $GITHUB_STEP_SUMMARY
