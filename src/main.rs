@@ -98,7 +98,7 @@ fn populate_frequency_map(
             break
         }
 
-        z = z.powu(3) - z.powu(2) + c;
+        z = z * z + c;
 
     }
 
