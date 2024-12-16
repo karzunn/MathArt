@@ -33,8 +33,13 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::679274284562:role/UploadMathArtRendering 
+          role-to-assume: arn:aws:iam::679274284562:role/UploadMathArtRendering
+          role-session-name: math-art-rendering-upload
+          aws-region: us-east-1
 
       - name: Upload To S3
         run: |
-          aws s3 cp output.png s3://math-art-renderings/output_2.png
+          UUID=$(uuidgen)
+          S3_PATH="s3://math-art-renderings/$UUID.png"
+          aws s3 cp output.png $S3_PATH
+          echo "Rendering available here: $S3_PATH"
