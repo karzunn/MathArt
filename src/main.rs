@@ -12,7 +12,7 @@ const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 1000000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
 const STEP: f64 = 0.0008;
-const SEGMENTS: u64 = 2;
+const SEGMENTS: u64 = 5;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -131,15 +131,15 @@ fn main() {
                 let mut imag = MAP_MIN;
                 while imag <= MAP_MAX {
                     (local_map, escaped) = populate_frequency_map(Complex64::new(real, imag), local_map);
-                    if !skipping && !escaped {
-                        skipping = true;
-                        local_step = STEP * 2.0;
-                    }
-                    else if skipping && escaped {
-                        skipping = false;
-                        imag -= local_step;
-                        local_step = STEP;
-                    }
+                    // if !skipping && !escaped {
+                    //     skipping = true;
+                    //     local_step = STEP * 2.0;
+                    // }
+                    // else if skipping && escaped {
+                    //     skipping = false;
+                    //     imag -= local_step;
+                    //     local_step = STEP;
+                    // }
                     imag += local_step;
                 }
                 local_map
