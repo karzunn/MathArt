@@ -9,10 +9,10 @@ const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
 const MAP_RESOLUTION: f64 = 5000.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 1000000;
+const MAX_ITERATIONS: u32 = 10000000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.0008;
-const SEGMENTS: u64 = 5;
+const STEP: f64 = 0.0005;
+const SEGMENTS: u64 = 10;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -68,11 +68,10 @@ fn translate_range(input: f64) -> u16 {
 fn populate_frequency_map(
     c: Complex64,
     mut frequency_map: HashMap<(u16, u16), u64>
-) -> (HashMap<(u16, u16), u64>, bool) {
+) -> HashMap<(u16, u16), u64> {
     let mut z = Complex64::new(0.0, 0.0);
     let mut visited_values = HashSet::new();
     let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
-    let mut escaped: bool = false;
 
     for _ in 0..MAX_ITERATIONS {
 
@@ -94,7 +93,6 @@ fn populate_frequency_map(
             for (key, value) in local_map {
                 *frequency_map.entry(key).or_insert(0) += value;
             }
-            escaped = true;
             break
         }
 
@@ -102,7 +100,7 @@ fn populate_frequency_map(
 
     }
 
-    (frequency_map, escaped)
+    frequency_map
 }
 
 fn main() {
@@ -123,24 +121,12 @@ fn main() {
         let partial_maps: Vec<HashMap<(u16, u16), u64>> = ((segment*SEGMENT_LENGTH)..=((segment+1)*SEGMENT_LENGTH))
             .into_par_iter()
             .map(|i| {
-                let mut skipping: bool = false;
-                let mut escaped: bool;
                 let mut local_map: HashMap<(u16, u16), u64> = HashMap::new();
-                let mut local_step = STEP;
                 let real = (i as f64 / DENSITY as f64) * (MAP_MAX - MAP_MIN) + MAP_MIN;
                 let mut imag = MAP_MIN;
                 while imag <= MAP_MAX {
-                    (local_map, escaped) = populate_frequency_map(Complex64::new(real, imag), local_map);
-                    // if !skipping && !escaped {
-                    //     skipping = true;
-                    //     local_step = STEP * 2.0;
-                    // }
-                    // else if skipping && escaped {
-                    //     skipping = false;
-                    //     imag -= local_step;
-                    //     local_step = STEP;
-                    // }
-                    imag += local_step;
+                    local_map = populate_frequency_map(Complex64::new(real, imag), local_map);
+                    imag += STEP;
                 }
                 local_map
             })
