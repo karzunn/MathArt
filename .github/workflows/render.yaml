@@ -8,7 +8,7 @@ on:
 permissions:
   id-token: write
   contents: read
-  
+
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
@@ -44,6 +44,7 @@ jobs:
       - name: Upload To S3
         run: |
           UUID=$(uuidgen)
-          S3_PATH="s3://math-art-renderings/$UUID.png"
+          BUCKET_NAME="math-art-renderings"
+          S3_PATH="s3://$BUCKET_NAME/$UUID.png"
           aws s3 cp output.png $S3_PATH
-          echo "Rendering available here: $S3_PATH"
+          echo "Rendering available here: https://$BUCKET_NAME.s3.us-east-1.amazonaws.com/$UUID.png" >> $GITHUB_STEP_SUMMARY
