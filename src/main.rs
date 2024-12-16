@@ -12,7 +12,7 @@ const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 1000000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
 const STEP: f64 = 0.0008;
-const SEGMENTS: u64 = 10;
+const SEGMENTS: u64 = 5;
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
@@ -66,7 +66,7 @@ fn translate_range(input: f64) -> u16 {
 
 
 fn populate_frequency_map(
-    imaginary_input: Complex64,
+    c: Complex64,
     mut frequency_map: HashMap<(u16, u16), u64>
 ) -> (HashMap<(u16, u16), u64>, bool) {
     let mut z = Complex64::new(0.0, 0.0);
@@ -98,7 +98,7 @@ fn populate_frequency_map(
             break
         }
 
-        z = z * z + imaginary_input;
+        z = z.powu(3) - z.powu(2) + c;
 
     }
 
