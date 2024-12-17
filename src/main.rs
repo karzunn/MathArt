@@ -12,7 +12,17 @@ const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 10000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
 const STEP: f64 = 0.0001;
-const SEGMENTS: u64 = 10;
+const SEGMENTS: u64 = 100;
+
+
+// The following exceeded the 16 GB of storage on the GHA runner
+// STEP = 0.0001, MAX_ITERATIONS = 10000, MAP_RESOLUTION = 10000, SEGMENTS = 10
+
+// The following hit the 6 hour GHA runner timout
+// STEP = 0.00015, MAX_ITERATIONS = 100000, MAP_RESOLUTION = 10000, SEGMENTS = 10
+
+// The following took 2 hours and 53 minutes
+// STEP = 0.0003, MAX_ITERATIONS = 1000000, MAP_RESOLUTION = 10000, SEGMENTS = 10
 
 
 fn create_grayscale_image(pixels: HashMap<(u16, u16), u64>) {
