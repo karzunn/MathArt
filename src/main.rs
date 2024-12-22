@@ -7,12 +7,12 @@ use indicatif::{ProgressBar, ProgressStyle};
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
-const MAP_RESOLUTION: f64 = 10000.0;
+const MAP_RESOLUTION: f64 = 500.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 1000000;
+const MAX_ITERATIONS: u32 = 1000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.000225;
-const SEGMENTS: u64 = 10;
+const STEP: f64 = 0.01;
+const SEGMENTS: u64 = 1;
 
 // Step size of 0.0002, 100k interations, and 10k x 10k image is probably the limit. That took 5 hours.
 // Step size has the largest impact on iteration time
