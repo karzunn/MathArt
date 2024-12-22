@@ -9,9 +9,9 @@ const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
 const MAP_RESOLUTION: f64 = 10000.0;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
-const MAX_ITERATIONS: u32 = 1000000;
+const MAX_ITERATIONS: u32 = 10000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
-const STEP: f64 = 0.000225;
+const STEP: f64 = 0.000175;
 const SEGMENTS: u64 = 10;
 
 // Step size of 0.0002, 100k interations, and 10k x 10k image is probably the limit. That took 5 hours.
@@ -100,8 +100,7 @@ fn populate_frequency_map(
             break
         }
 
-        //z = z.powf(std::f64::consts::E) + c;
-        z = z*z - z.im + c
+        z = z.powf(std::f64::consts::E) + c;
 
     }
 
