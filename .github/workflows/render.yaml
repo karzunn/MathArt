@@ -1,4 +1,4 @@
-name: Generate Rendering
+name: z=z^2+c | ${{ inputs.map_resolution }}x${{ inputs.map_resolution }} | ${{ inputs.max_iterations }} iterations | ${{ inputs.step }} step size
 
 on:
   workflow_dispatch:
