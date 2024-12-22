@@ -100,7 +100,8 @@ fn populate_frequency_map(
             break
         }
 
-        z = z * z + c;
+        //z = z.powf(std::f64::consts::E) + c;
+        z = z*z - z.im + c
 
     }
 
