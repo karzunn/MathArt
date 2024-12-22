@@ -7,7 +7,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 
 const MAP_MIN: f64 = -2.0;
 const MAP_MAX: f64 = 2.0;
-const MAP_RESOLUTION: f64 = 500.0;
+const MAP_RESOLUTION: f64 = 500 as f64;
 const CYCLE_DETECTION_PRECISION: f64 = 4500000000000000000.0;
 const MAX_ITERATIONS: u32 = 1000;
 const PIXELS: u32 = MAP_RESOLUTION as u32;
@@ -100,7 +100,7 @@ fn populate_frequency_map(
             break
         }
 
-        z = z.powf(std::f64::consts::E) + c;
+        z = z * z + c;
 
     }
 

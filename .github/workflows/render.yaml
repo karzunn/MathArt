@@ -4,21 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       map_resolution:
-        description: "Value for MAP_RESOLUTION (f64)"
+        description: "Image length/width (u64)"
         required: true
-        default: 10000.0
+        default: 1000
       max_iterations:
-        description: "Value for MAX_ITERATIONS (u32)"
+        description: "Max iterations (u32)"
         required: true
-        default: 1000000
+        default: 10000
       step:
-        description: "Value for STEP (f64)"
+        description: "Step size for grid scan (f64)"
         required: true
-        default: 0.000225
+        default: 0.005
       segments:
-        description: "Value for SEGMENTS (u64)"
+        description: "Number of segments (saves memory) (u64)"
         required: true
-        default: 10
+        default: 1
 
 permissions:
   id-token: write
@@ -40,7 +40,7 @@ jobs:
       - name: Build and Run
         run: |
           echo "Setting Rust constants from inputs..."
-          sed -i 's/^const MAP_RESOLUTION: f64 = .*;/const MAP_RESOLUTION: f64 = ${{ inputs.map_resolution }};/' src/main.rs
+          sed -i 's/^const MAP_RESOLUTION: f64 = .*;/const MAP_RESOLUTION: f64 = ${{ inputs.map_resolution }} as f64;/' src/main.rs
           sed -i 's/^const MAX_ITERATIONS: u32 = .*;/const MAX_ITERATIONS: u32 = ${{ inputs.max_iterations }};/' src/main.rs
           sed -i 's/^const STEP: f64 = .*;/const STEP: f64 = ${{ inputs.step }};/' src/main.rs
           sed -i 's/^const SEGMENTS: u64 = .*;/const SEGMENTS: u64 = ${{ inputs.segments }};/' src/main.rs
