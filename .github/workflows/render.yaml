@@ -40,10 +40,10 @@ jobs:
       - name: Build and Run
         run: |
           echo "Setting Rust constants from inputs..."
-          sed -i 's/^const MAP_RESOLUTION: f64 = .*;/const MAP_RESOLUTION: f64 = ${INPUT_MAP_RESOLUTION};/' src/main.rs
-          sed -i 's/^const MAX_ITERATIONS: u32 = .*;/const MAX_ITERATIONS: u32 = ${INPUT_MAX_ITERATIONS};/' src/main.rs
-          sed -i 's/^const STEP: f64 = .*;/const STEP: f64 = ${INPUT_STEP};/' src/main.rs
-          sed -i 's/^const SEGMENTS: u64 = .*;/const SEGMENTS: u64 = ${INPUT_SEGMENTS};/' src/main.rs
+          sed -i 's/^const MAP_RESOLUTION: f64 = .*;/const MAP_RESOLUTION: f64 = ${{ inputs.map_resolution }};/' src/main.rs
+          sed -i 's/^const MAX_ITERATIONS: u32 = .*;/const MAX_ITERATIONS: u32 = ${{ inputs.max_iterations }};/' src/main.rs
+          sed -i 's/^const STEP: f64 = .*;/const STEP: f64 = ${{ inputs.step }};/' src/main.rs
+          sed -i 's/^const SEGMENTS: u64 = .*;/const SEGMENTS: u64 = ${{ inputs.segments }};/' src/main.rs
 
           cargo build --release
           cargo run
