@@ -4,7 +4,7 @@ A Rust implementation of the algorithm used to generate the 'buddhabrot'. It uti
 
 # Use
 
-Use ```cargo run```, and the rendering will be saved as "output.png".
+Use ```cargo run --release```, and the rendering will be saved as "output.png".
 
 You can modify the following constants at the top of main.rs:
 - MAP_RESOLUTION
